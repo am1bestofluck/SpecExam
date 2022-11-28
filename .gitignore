@@ -1,1 +1,4 @@
-*.bkp
+*.*
+!.gitignore
+!*.drawio
+!*.cs

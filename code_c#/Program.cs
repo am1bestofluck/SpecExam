@@ -59,9 +59,8 @@ class Program
         if (args.Length>1)
         {
             int parsedArg=new int();
-            bool FirstArgParsable=Int32.TryParse(args[0], out parsedArg);
-            WriteLine($"_{args[0]}_");
-            if (FirstArgParsable)
+            bool firstArgParsable=Int32.TryParse(args[0], out parsedArg);
+            if (firstArgParsable)
             {
                 string [] arrayIncoming= new string [args.Length-1];
                 for (int nextArg = 1; nextArg < args.Length; nextArg++)
