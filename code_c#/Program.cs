@@ -1,11 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-// Console.WriteLine("Hello, World!");
-using static System.Console;
+﻿using static System.Console;
 using System.Text.RegularExpressions;
 class Program
 {
     protected const int DEFAULTLIMIT = 3;
     const string DEFAULTFILEPATH = "../README.MD";
+    const string EXEFILEPATH="../../../../README.MD";
 
 
     protected static int GetOutputLength(int defaultLimit = DEFAULTLIMIT)
@@ -18,7 +17,10 @@ class Program
         return output = inputValid == true ? output : defaultLimit;
     }
 
-    protected static string[] GetIncomingStringArray( string defaultFilePath = DEFAULTFILEPATH)
+    protected static string[] GetIncomingStringArray(
+        string defaultFilePath = DEFAULTFILEPATH,
+        string pathForExeFile= EXEFILEPATH
+    )
     {
         //здесь даём пользователю ввести "массив строк" с клавиатуры, если в консоли чушь или пусто... можно пропустить и тогда распарсится readme.md
         string?[] output = new string?[1];
@@ -27,7 +29,9 @@ class Program
         string catchInput = ReadLine()!;
         if (catchInput == string.Empty)//собираем ридми в строку, чтобы потом разбить его на массив слов
         {
-            StreamReader file = new StreamReader(defaultFilePath);
+            var pathToOpen=File.Exists(defaultFilePath)? defaultFilePath: pathForExeFile;
+            StreamReader file = new StreamReader(pathToOpen);
+            
             string line;
             line = file.ReadLine()!;
             while (line != null)
@@ -37,11 +41,7 @@ class Program
             }
             //парсим файлик...тэги оставлять, не?... не^^
             Regex findTags = new Regex("</?.*?>");
-            Regex noBrakeSpace = new Regex("&nbsp;");// ... чем дальше в лес тем больше дров.
-            Regex newLine = new Regex("<br>");//"Красивенько", за что Ты со Мной так XD
-            catchInput=newLine.Replace(catchInput,"\n");
             catchInput = findTags.Replace(catchInput, "");
-            catchInput = noBrakeSpace.Replace(catchInput,"");
         }
         foreach (var item in defaultSeparators)//решаем вопрос с несколькими разделителями подряд, на всякий случай
         {
