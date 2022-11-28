@@ -6,7 +6,7 @@ class Program
 {
     protected const int DEFAULTLIMIT=3;
     protected const char DEFAULTSEPARATOR=' ';
-// str = rgx.Replace(str, "")
+    protected Regex FIND_TAGS=new Regex()
     const string DEFAULTFILEPATH="../README.MD";
 
 
@@ -26,25 +26,29 @@ class Program
         string catchInput=ReadLine()!;
         if (catchInput==string.Empty)
         {
+            StreamReader file = new StreamReader(defaultFilePath);
+            string line;
+            line=file.ReadLine()!;
+            while (line!=null)
+            {
+                line = file.ReadLine()!;
+                catchInput=catchInput+line;
+            }
             //парсим файлик...тэги оставлять, не?... не^^
             WriteLine("open");
         }
-        else
-        {
             while (catchInput.Contains(defaultSeparator.ToString()+defaultSeparator.ToString()))
             {
                 catchInput=catchInput.Replace(defaultSeparator.ToString()+defaultSeparator.ToString(),defaultSeparator.ToString());//решаем вопрос с несколькими разделителями подряд
             }
             WriteLine(catchInput);
-
-        }
         return output!;
     }
     static void Core_DefaultArgs()
     {
-        int q=GetOutputLength();
-        WriteLine(q);
-        string[] w= GetIncomingStringArray();
+        int cutOut=GetOutputLength();
+        WriteLine(cutOut);
+        string[] arrayIncoming= GetIncomingStringArray();
     }
     static void Core_vocalArgs(int cutOut, string[] arrayInherited)
     {
