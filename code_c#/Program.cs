@@ -40,11 +40,15 @@ class Program
         }
         return output!;
     }
-    static void Main_DefaultArgs()
+    static void Core_DefaultArgs()
     {
         int q=GetOutputLength();
         WriteLine(q);
         string[] w= GetIncomingStringArray();
+    }
+    static void Core_vocalArgs(int cutOut, string[] arrayInherited)
+    {
+
     }
     static void Main(string[] args)
     {
@@ -59,19 +63,21 @@ class Program
                 {
                     arrayIncoming[nextArg-1]=args[nextArg];
                 }
+                Core_vocalArgs(cutOut:parsedArg,arrayInherited:arrayIncoming);
                 WriteLine(parsedArg);
                 WriteLine(String.Join(", ",arrayIncoming));
+
             }
             else
             {
                 WriteLine("Аргументы из консоли заданы не верно");
-                Main_DefaultArgs();
+                Core_DefaultArgs();
             }
         }
 
         else
         {
-            Main_DefaultArgs();
+            Core_DefaultArgs();
         }
         
     }
