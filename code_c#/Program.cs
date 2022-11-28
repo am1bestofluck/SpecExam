@@ -4,87 +4,111 @@ using static System.Console;
 using System.Text.RegularExpressions;
 class Program
 {
-    protected const int DEFAULTLIMIT=3;
-    protected const char DEFAULTSEPARATOR=' ';
-    protected Regex FIND_TAGS=new Regex()
-    const string DEFAULTFILEPATH="../README.MD";
+    protected const int DEFAULTLIMIT = 3;
+    const string DEFAULTFILEPATH = "../README.MD";
 
 
-    protected static int GetOutputLength(int defaultLimit=DEFAULTLIMIT)
+    protected static int GetOutputLength(int defaultLimit = DEFAULTLIMIT)
     {
+        //Здесь даём пользователю ввести отбор по размеру слова, если в консоли чушь или пусто
         WriteLine($"Введите кол-во символов для фильтра. Одна попытка. По умолчанию - {defaultLimit}");
         bool inputValid;
         int output;
-        inputValid=Int32.TryParse(ReadLine(), out output);
-        return output=inputValid==true? output: defaultLimit;
+        inputValid = Int32.TryParse(ReadLine(), out output);
+        return output = inputValid == true ? output : defaultLimit;
     }
 
-    protected static string[] GetIncomingStringArray(string defaultFilePath=DEFAULTFILEPATH,char defaultSeparator=DEFAULTSEPARATOR)
+    protected static string[] GetIncomingStringArray( string defaultFilePath = DEFAULTFILEPATH)
     {
-        string?[] output= new string? [1];
-        WriteLine($"Здесь можно ввести \"массив с клавиатуры\", разделитель- {defaultSeparator}. Если пропустить- программа распарсит {defaultFilePath}");
-        string catchInput=ReadLine()!;
-        if (catchInput==string.Empty)
+        //здесь даём пользователю ввести "массив строк" с клавиатуры, если в консоли чушь или пусто... можно пропустить и тогда распарсится readme.md
+        string?[] output = new string?[1];
+        char[] defaultSeparators =new char[2]{' ','\n'};
+        WriteLine($"Здесь можно ввести \"массив с клавиатуры\", разделители- {String.Join(',',defaultSeparators)}. Если пропустить- программа распарсит {defaultFilePath}");
+        string catchInput = ReadLine()!;
+        if (catchInput == string.Empty)//собираем ридми в строку, чтобы потом разбить его на массив слов
         {
             StreamReader file = new StreamReader(defaultFilePath);
             string line;
-            line=file.ReadLine()!;
-            while (line!=null)
+            line = file.ReadLine()!;
+            while (line != null)
             {
                 line = file.ReadLine()!;
-                catchInput=catchInput+line;
+                catchInput = catchInput + line + " ";
             }
             //парсим файлик...тэги оставлять, не?... не^^
-            WriteLine("open");
+            Regex findTags = new Regex("</?.*?>");
+            Regex noBrakeSpace = new Regex("&nbsp;");// ... чем дальше в лес тем больше дров.
+            Regex newLine = new Regex("<br>");//"Красивенько", за что Ты со Мной так XD
+            catchInput=newLine.Replace(catchInput,"\n");
+            catchInput = findTags.Replace(catchInput, "");
+            catchInput = noBrakeSpace.Replace(catchInput,"");
         }
-            while (catchInput.Contains(defaultSeparator.ToString()+defaultSeparator.ToString()))
+        foreach (var item in defaultSeparators)//решаем вопрос с несколькими разделителями подряд, на всякий случай
+        {
+            string strfChar=item.ToString();
+            while (catchInput.Contains(strfChar + strfChar))
             {
-                catchInput=catchInput.Replace(defaultSeparator.ToString()+defaultSeparator.ToString(),defaultSeparator.ToString());//решаем вопрос с несколькими разделителями подряд
-            }
-            WriteLine(catchInput);
+                catchInput = catchInput.Replace(strfChar + strfChar, strfChar);
+            }   
+        }
+        output=catchInput.Split(defaultSeparators);
         return output!;
     }
-    static void Core_DefaultArgs()
-    {
-        int cutOut=GetOutputLength();
-        WriteLine(cutOut);
-        string[] arrayIncoming= GetIncomingStringArray();
+    protected static string[] RejectExcessiveValues(string [] arrayIncoming, int stringSizeInLetters)
+    {//интересно, а можно это сделать через рекурсию?...
+        string[] output;
+        int count = new int();
+        foreach (var item in arrayIncoming)
+        {
+            if (item.Length<=stringSizeInLetters) count++;
+        }
+        int output_index= new int();
+        output= new string[count];
+        for (int i = 0; i <arrayIncoming.Length; i++)
+        {
+            if (arrayIncoming[i].Length<=stringSizeInLetters)
+            {
+                output[output_index]=arrayIncoming[i];
+                output_index++;
+            }
+        }
+        return output;
     }
-    static void Core_vocalArgs(int cutOut, string[] arrayInherited)
+    protected static void Core(int? cutOut=null, string[]? arrayInherited=null)
     {
-
+        cutOut =cutOut.HasValue? cutOut: GetOutputLength();
+        string[] arrayIncoming= (arrayInherited!=null)? arrayInherited:GetIncomingStringArray();
+        var result=RejectExcessiveValues(arrayIncoming,cutOut.Value);
+        WriteLine(String.Join(", ", result));
     }
     static void Main(string[] args)
     {
-        if (args.Length>1)
+        if (args.Length > 1)
         {
-            int parsedArg=new int();
-            bool firstArgParsable=Int32.TryParse(args[0], out parsedArg);
+            int parsedArg = new int();
+            bool firstArgParsable = Int32.TryParse(args[0], out parsedArg);
             if (firstArgParsable)
             {
-                string [] arrayIncoming= new string [args.Length-1];
+                string[] arrayIncoming = new string[args.Length - 1];
                 for (int nextArg = 1; nextArg < args.Length; nextArg++)
                 {
-                    arrayIncoming[nextArg-1]=args[nextArg];
+                    arrayIncoming[nextArg - 1] = args[nextArg];
                 }
-                Core_vocalArgs(cutOut:parsedArg,arrayInherited:arrayIncoming);
-                WriteLine(parsedArg);
-                WriteLine(String.Join(", ",arrayIncoming));
+                Core(cutOut: parsedArg, arrayInherited: arrayIncoming);
 
             }
             else
             {
                 WriteLine("Аргументы из консоли заданы не верно");
-                Core_DefaultArgs();
+                Core();
             }
         }
-
         else
         {
-            Core_DefaultArgs();
+            Core();
         }
-        WriteLine("Anything to quit");
+        WriteLine("Press any key... :)");
         Console.ReadKey();
-        
+
     }
 }
