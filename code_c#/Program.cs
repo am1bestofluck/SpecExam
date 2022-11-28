@@ -56,6 +56,7 @@ class Program
         {
             int parsedArg=new int();
             bool FirstArgParsable=Int32.TryParse(args[0], out parsedArg);
+            WriteLine($"_{args[0]}_");
             if (FirstArgParsable)
             {
                 string [] arrayIncoming= new string [args.Length-1];
@@ -79,6 +80,8 @@ class Program
         {
             Core_DefaultArgs();
         }
+        WriteLine("Anything to quit");
+        Console.ReadKey();
         
     }
 }
